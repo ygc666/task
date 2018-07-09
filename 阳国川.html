@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>阳国川</title>
+    <script>
+        window.onload = function(){
+            class Drag{
+                constructor(id){
+                    this.oDiv = document.querySelector(id);
+                    this.disY = 0;
+                    this.disX = 0;
+
+                    //运动的变量
+                    this.prevX = 0;
+                    this.prevY = 0;
+                    this.iSpeedX = 0;
+                    this.iSpeedY = 0;
+                    this.timer = null;
+
+                    this.init();
+                }
+                //方法入口
+                init(){
+                    this.oDiv.onmousedown = (ev = window.event)=>{
+                        this.fnDown(ev);
+                        document.onmousemove = (ev = window.event)=>{
+                            this.fnMove(ev);
+                        }
+                        document.onmouseup = ()=>{
+                            this.fnUp();
+                        }
+                        return false;
+                    };
+                }
+                fnDown(ev){
+                    //console.log(ev)
+                    this.disX = ev.clientX - this.oDiv.offsetLeft;
+                    this.disY = ev.clientY - this.oDiv.offsetTop;
+
+                    this.prevX = ev.clientX;
+                    this.prevY = ev.clientY;
+
+                }
+                fnMove(ev){
+                    clearInterval(this.timer);//解决BUG
+                    let L = ev.clientX - this.disX;
+                    let T = ev.clientY - this.disY;
+                    if(T < 0){
+                        T = 0;
+                    }else if(T > document.documentElement.clientHeight - this.oDiv.offsetHeight){
+                        T = document.documentElement.clientHeight - this.oDiv.offsetHeight;
+                    }
+                    if(L < 0){
+                        L = 0;
+                    }else if(L > document.documentElement.clientWidth - this.oDiv.offsetWidth){
+                        L = document.documentElement.clientWidth - this.oDiv.offsetWidth;
+                    }
+                    this.oDiv.style.left = L +'px';
+                    this.oDiv.style.top = T +'px';
+
+                    this.oDiv.style.left = L + 'px';
+                    this.oDiv.style.top = T + 'px';
+
+                    this.iSpeedX = ev.clientX - this.prevX;
+                    this.iSpeedY = ev.clientY - this.prevY;
+                    
+                    this.prevX = ev.clientX;
+                    this.prevY = ev.clientY;
+                }
+                fnUp(){
+                    document.onmousemove = document.onmouseup = null;
+
+                    this.startMove();
+                }
+                startMove(){
+                    clearInterval(this.timer);
+                    this.timer = setInterval(()=>{
+                        this.iSpeedY += 3;
+                        let L = this.oDiv.offsetLeft + this.iSpeedX;
+			            let T = this.oDiv.offsetTop + this.iSpeedY;
+                        if(T>document.documentElement.clientHeight - this.oDiv.offsetHeight){
+                            T = document.documentElement.clientHeight - this.oDiv.offsetHeight;
+                            this.iSpeedY *= -1;
+                            this.iSpeedY *= 0.75;
+                            this.iSpeedX *= 0.75;
+                        }
+                        else if(T<0){
+                            T = 0;
+                            this.iSpeedY *= -1;
+                            this.iSpeedY *= 0.75;
+                        }
+                        
+                        if(L>document.documentElement.clientWidth - this.oDiv.offsetWidth){
+                            L = document.documentElement.clientWidth - this.oDiv.offsetWidth;
+                            this.iSpeedX *= -1;
+                            this.iSpeedX *= 0.75;
+                        }
+                        else if(L<0){
+                            L = 0;
+                            this.iSpeedX *= -1;
+                            this.iSpeedX *= 0.75;
+                        }
+                        
+                        this.oDiv.style.left = L + 'px';
+                        this.oDiv.style.top = T + 'px';
+                        if(this.iSpeedY.toFixed(2)=="-1.29"){
+                            clearInterval(this.timer);
+                        }
+                    },15);
+                }           
+            }
+            new Drag("#div1");
+        }
+    </script>
+</head>
+<body style="margin: 0;">
+    <div id="div1" style="position: absolute; width: 100px;height: 100px;background-color: yellowgreen; cursor: move;"></div>
+</body>
+</html>
